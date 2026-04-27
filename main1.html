@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WeatherWise Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green-50:  #f0faf4; --green-100: #d4f0e0; --green-200: #a7dfc0;
+    --green-400: #4caf7d; --green-500: #2d9156; --green-600: #1e6e3e;
+    --green-700: #144d2b; --green-800: #0c3219;
+    --amber-100: #fef3c7; --blue-100: #dbeafe; --red-100: #fee2e2;
+    --purple-100:#ede9fe;
+    --bg: #f7fbf8; --surface: #ffffff; --border: #d4e8da;
+    --text: #0f1f15; --text-2: #3d5c48; --text-3: #6b8f78;
+    /*--green-50:  #f0faf4;
+    --green-100: #d4f0e0;
+    --green-200: #a7dfc0;
+    --green-400: #4caf7d;
+    --green-500: #2d9156;
+    --green-600: #1e6e3e;
+    --green-700: #144d2b;
+    --green-800: #0c3219;
+    --amber-100: #fef3c7;
+    --amber-400: #f59e0b;
+    --amber-600: #d97706;
+    --blue-100:  #dbeafe;
+    --blue-500:  #3b82f6;
+    --blue-600:  #2563eb;
+    --red-100:   #fee2e2;
+    --red-500:   #ef4444;
+    --purple-100:#ede9fe;
+    --purple-500:#8b5cf6;
+    --bg:        #6ae088;
+    --surface:   #ffffff;
+    --border:    #d4e8da;
+    --text:      #0f1f15;
+    --text-2:    #3d5c48;
+    --text-3:    #6b8f78;*/
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body:    'DM Sans', sans-serif;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    /*
+    background-image: url('Allfour.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;*/  
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0;
+    padding: 0 1.5rem;
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--green-600);
+    margin-right: 2.5rem;
+    padding: 1rem 0;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--green-400); font-style: italic; }
+  .nav-links {
+    display: flex; gap: 0; flex: 1;
+  }
+  .nav-link {
+    padding: 1rem 1.1rem;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: color 0.18s, border-color 0.18s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .nav-link:hover { color: var(--green-500); }
+  .nav-link.active { color: var(--green-600); border-bottom-color: var(--green-500); }
+
+  /* ── PAGES ── */
+  .page { display: none; max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  .page.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── PAGE HEADERS ── */
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--green-700);
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  .page-header p { color: var(--text-3); font-size: 15px; }
+  .pill {
+    display: inline-block;
+    background: var(--green-100);
+    color: var(--green-600);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 12px; border-radius: 20px;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── CITY SELECTOR ── */
+  .city-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 2rem;
+  }
+  .city-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  }
+  .city-card:hover { border-color: var(--green-400); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .city-card.active { border-color: var(--green-500); background: var(--green-50); box-shadow: var(--shadow-md); }
+  .city-card .c-icon { font-size: 2rem; margin-bottom: 8px; }
+  .city-card .c-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .city-card .c-region { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  /* ── WEATHER CARD ── */
+  .weather-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    display: none;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+  }
+  .weather-card.show { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .wc-left { display: flex; align-items: center; gap: 1rem; }
+  .wc-icon { font-size: 3rem; }
+  .wc-city { font-family: var(--font-display); font-size: 1.6rem; color: var(--green-700); }
+  .wc-desc { font-size: 13px; color: var(--text-3); text-transform: capitalize; margin-top: 2px; }
+  .wc-badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px; margin-top: 6px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .badge-CLEAR  { background: var(--amber-100); color: #92400e; }
+  .badge-CLOUDY { background: var(--blue-100);  color: #1e40af; }
+  .badge-RAIN   { background: var(--purple-100);color: #5b21b6; }
+  .badge-STORM  { background: var(--red-100);   color: #991b1b; }
+  .badge-HOT    { background: #fff7ed;           color: #9a3412; }
+  .badge-COLD   { background: #eff6ff;           color: #1e3a8a; }
+  .badge-WINDY  { background: var(--green-100);  color: var(--green-700); }
+  .wc-temp { font-family: var(--font-display); font-size: 3rem; color: var(--green-600); margin-left: auto; }
+  .wc-stats { display: flex; gap: 2rem; }
+  .wc-stat .val { font-size: 15px; font-weight: 600; color: var(--text); }
+  .wc-stat .lbl { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+  .wc-insight {
+    width: 100%;
+    background: var(--green-50);
+    border: 1px solid var(--green-100);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 13.5px;
+    color: var(--green-700);
+    margin-top: 0.5rem;
+  }
+
+  /* ── PLACE CARDS ── */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--green-700);
+    margin-bottom: 1rem;
+  }
+  .places-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 2rem;
+  }
+  .place-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.18s, transform 0.15s, border-color 0.18s;
+  }
+  .place-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--green-200); }
+  .place-card .rank {
+    font-size: 11px; font-weight: 700; color: var(--green-500);
+    letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .place-card .p-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .place-card .p-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+  }
+  .tag-indoor  { background: var(--blue-100);   color: #1e40af; }
+  .tag-outdoor { background: var(--green-100);  color: var(--green-700); }
+  .tag-cat     { background: #f3f4f6; color: #374151; }
+  .place-card .p-reason {
+    font-size: 12.5px; color: var(--text-3); line-height: 1.55;
+    border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px;
+  }
+
+  /* ── LOADING / EMPTY ── */
+  .loader {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-3); font-size: 14px; display: none;
+  }
+  .loader.show { display: block; }
+  .loader-dots { display: inline-flex; gap: 6px; margin-top: 1rem; }
+  .loader-dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green-400);
+    animation: bounce 1.2s infinite;
+  }
+  .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,80%,100% { transform: scale(0.6); opacity: 0.5; }
+    40%          { transform: scale(1);   opacity: 1; }
+  }
+  .empty-state {
+    text-align: center; padding: 2rem;
+    color: var(--text-3); font-size: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); display: none;
+  }
+  .empty-state.show { display: block; }
+
+  /* ── CITY INFO PAGE ── */
+  .city-info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    display: none;
+  }
+  .city-info-card.show { display: block; }
+  .cic-header { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+  .cic-icon-wrap {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--green-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; flex-shrink: 0;
+  }
+  .cic-name { font-family: var(--font-display); font-size: 2rem; color: var(--green-700); }
+  .cic-location { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+  .cic-about {
+    background: var(--green-50); border: 1px solid var(--green-100);
+    border-radius: var(--radius-sm); padding: 1rem 1.25rem;
+    font-size: 14px; color: var(--green-800); margin-bottom: 1.5rem; line-height: 1.65;
+  }
+  .cic-places-title {
+    font-size: 13px; font-weight: 600; color: var(--text-3);
+    letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .cic-place-list { display: flex; flex-direction: column; gap: 8px; }
+  .cic-place-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.6rem 0.9rem;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+  }
+  .cic-place-row .pr-name { flex: 1; font-weight: 500; color: var(--text); }
+  .cic-place-row .pr-score {
+    font-size: 11px; font-weight: 600; color: var(--green-600);
+    background: var(--green-100); padding: 2px 7px; border-radius: 20px;
+  }
+
+  /* ── SEARCH PAGE ── */
+  .search-bar {
+    display: flex; gap: 10px; margin-bottom: 2rem;
+  }
+  .search-bar input {
+    flex: 1;
+    padding: 0.85rem 1.25rem;
+    font-family: var(--font-body); font-size: 15px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--text);
+    outline: none; transition: border-color 0.18s;
+  }
+  .search-bar input:focus { border-color: var(--green-400); }
+  .search-bar input::placeholder { color: var(--text-3); }
+  .btn {
+    padding: 0.85rem 1.5rem;
+    background: var(--green-500); color: #fff;
+    border: none; border-radius: var(--radius-md);
+    font-family: var(--font-body); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.18s, transform 0.12s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--green-600); }
+  .btn:active { transform: scale(0.97); }
+  .btn-sm {
+    padding: 0.5rem 1rem; font-size: 13px;
+  }
+  .btn-ghost {
+    background: transparent; border: 1.5px solid var(--border);
+    color: var(--text-2); border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 12px; font-weight: 500;
+    cursor: pointer; padding: 4px 12px; transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--green-400); color: var(--green-600); }
+  .search-hint {
+    font-size: 12.5px; color: var(--text-3); margin-bottom: 1.5rem;
+  }
+  .search-hint strong { color: var(--green-600); }
+  .search-result-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-result-row:hover { border-color: var(--green-300); box-shadow: var(--shadow-sm); }
+  .sr-num { font-size: 12px; font-weight: 700; color: var(--text-3); min-width: 22px; }
+  .sr-name { flex: 1; font-weight: 600; font-size: 14px; color: var(--text); }
+  .sr-city { font-size: 11px; color: var(--text-3); text-transform: capitalize; }
+
+  /* ── HISTORY PAGE ── */
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .history-empty {
+    text-align: center; padding: 3rem;
+    color: var(--text-3); font-size: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .history-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.1rem; margin-bottom: 8px;
+  }
+  .hi-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--green-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 1px;
+  }
+  .hi-action { font-size: 14px; font-weight: 500; color: var(--text); }
+  .hi-time { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  /* ── HOME PAGE ── */
+  .home-hero {
+    text-align: center; padding: 3rem 1rem 2.5rem;
+  }
+  .home-hero h1 {
+    font-family: var(--font-display);
+    font-size: 3.5rem; color: var(--green-700);
+    line-height: 1.1; margin-bottom: 1rem;
+  }
+  .home-hero h1 em { color: var(--green-400); font-style: italic; }
+  .home-hero p { font-size: 16px; color: var(--text-3); max-width: 520px; margin: 0 auto 2rem; }
+  .home-cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-outline {
+    padding: 0.85rem 1.5rem;
+    background: transparent; color: var(--green-600);
+    border: 1.5px solid var(--green-400); border-radius: var(--radius-md);
+    font-family: var(--font-body); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.18s;
+  }
+  .btn-outline:hover { background: var(--green-50); }
+  .home-features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px; margin-top: 3rem;
+  }
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.25rem;
+    cursor: pointer;
+    transition: box-shadow 0.18s, transform 0.15s, border-color 0.18s;
+  }
+  .feat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: var(--green-200); }
+  .feat-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .feat-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .feat-desc { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+  .divider { width: 48px; height: 3px; background: var(--green-400); border-radius: 2px; margin: 1rem 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .city-grid { grid-template-columns: repeat(2,1fr); }
+    .wc-temp { margin-left: 0; }
+    .home-hero h1 { font-size: 2.4rem; }
+    .nav-links { gap: 0; overflow-x: auto; }
+    .nav-link { font-size: 12px; padding: 1rem 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="goPage('home')">WeatherWise <span>Explorer</span></a>
+    <div class="nav-links">
+      <div class="nav-link" data-page="home"        onclick="goPage('home')">Home</div>
+      <div class="nav-link" data-page="weather"     onclick="goPage('weather')">Live Weather</div>
+      <div class="nav-link" data-page="cityinfo"    onclick="goPage('cityinfo')">City Info</div>
+      <div class="nav-link" data-page="recommend"   onclick="goPage('recommend')">Recommendations</div>
+      <div class="nav-link" data-page="search"      onclick="goPage('search')">Search Places</div>
+      <div class="nav-link" data-page="history"     onclick="goPage('history')">History</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div class="pill">Uttarakhand</div>
+    <h1>Your smart city guide<br>for <em>right now</em></h1>
+    <p>Real-time weather meets curated place recommendations — find the perfect spot to visit today.</p>
+    <div class="home-cta-group">
+      <button class="btn" onclick="goPage('recommend')">Get Recommendations</button>
+      <button class="btn-outline" onclick="goPage('weather')">Check Weather</button>
+    </div>
+  </div>
+
+  <div class="home-features">
+    <div class="feat-card" onclick="goPage('weather')">
+      <div class="feat-icon">🌤️</div>
+      <div class="divider"></div>
+      <div class="feat-title">Live Weather</div>
+      <div class="feat-desc">Real-time conditions for all 4 cities using Open-Meteo.</div>
+    </div>
+    <div class="feat-card" onclick="goPage('cityinfo')">
+      <div class="feat-icon">🏙️</div>
+      <div class="divider"></div>
+      <div class="feat-title">City Info</div>
+      <div class="feat-desc">Explore all places in a city with categories and ratings.</div>
+    </div>
+    <div class="feat-card" onclick="goPage('recommend')">
+      <div class="feat-icon">✨</div>
+      <div class="divider"></div>
+      <div class="feat-title">Smart Recommendations</div>
+      <div class="feat-desc">Top 5 places ranked by weather, category, and popularity.</div>
+    </div>
+    <div class="feat-card" onclick="goPage('search')">
+      <div class="feat-icon">🔍</div>
+      <div class="divider"></div>
+      <div class="feat-title">Search Places</div>
+      <div class="feat-desc">Find places by name or category across all cities.</div>
+    </div>
+    <div class="feat-card" onclick="goPage('history')">
+      <div class="feat-icon">🕓</div>
+      <div class="divider"></div>
+      <div class="feat-title">Search History</div>
+      <div class="feat-desc">Your recent activity in this session.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     WEATHER PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-weather">
+  <div class="page-header">
+    <div class="pill">Live Weather</div>
+    <h1>Current Conditions</h1>
+    <p>Select a city to fetch real-time weather via Open-Meteo.</p>
+  </div>
+  <div class="city-grid" id="wt-city-grid">
+    <div class="city-card" data-key="dehradun"  onclick="weatherPage(this)"><div class="c-icon">🏙️</div><div class="c-name">Dehradun</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="mussoorie" onclick="weatherPage(this)"><div class="c-icon">🏔️</div><div class="c-name">Mussoorie</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="rishikesh" onclick="weatherPage(this)"><div class="c-icon">🕉️</div><div class="c-name">Rishikesh</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="haridwar"  onclick="weatherPage(this)"><div class="c-icon">🛕</div><div class="c-name">Haridwar</div><div class="c-region">Uttarakhand, IN</div></div>
+  </div>
+  <div class="loader" id="wt-loader">Fetching live weather...<div class="loader-dots"><span></span><span></span><span></span></div></div>
+  <div class="weather-card" id="wt-card"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CITY INFO PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-cityinfo">
+  <div class="page-header">
+    <div class="pill">City Info</div>
+    <h1>Explore a City</h1>
+    <p>View details and all places for each city.</p>
+  </div>
+  <div class="city-grid" id="ci-city-grid">
+    <div class="city-card" data-key="dehradun"  onclick="cityInfoPage(this)"><div class="c-icon">🏙️</div><div class="c-name">Dehradun</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="mussoorie" onclick="cityInfoPage(this)"><div class="c-icon">🏔️</div><div class="c-name">Mussoorie</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="rishikesh" onclick="cityInfoPage(this)"><div class="c-icon">🕉️</div><div class="c-name">Rishikesh</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="haridwar"  onclick="cityInfoPage(this)"><div class="c-icon">🛕</div><div class="c-name">Haridwar</div><div class="c-region">Uttarakhand, IN</div></div>
+  </div>
+  <div class="city-info-card" id="ci-card"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     RECOMMENDATIONS PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-recommend">
+  <div class="page-header">
+    <div class="pill">Smart Recommendations</div>
+    <h1>Where to go today?</h1>
+    <p>Top 5 places ranked by weather conditions, category fit, and popularity — just like your backend.</p>
+  </div>
+  <div class="city-grid" id="rec-city-grid">
+    <div class="city-card" data-key="dehradun"  onclick="recommendPage(this)"><div class="c-icon">🏙️</div><div class="c-name">Dehradun</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="mussoorie" onclick="recommendPage(this)"><div class="c-icon">🏔️</div><div class="c-name">Mussoorie</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="rishikesh" onclick="recommendPage(this)"><div class="c-icon">🕉️</div><div class="c-name">Rishikesh</div><div class="c-region">Uttarakhand, IN</div></div>
+    <div class="city-card" data-key="haridwar"  onclick="recommendPage(this)"><div class="c-icon">🛕</div><div class="c-name">Haridwar</div><div class="c-region">Uttarakhand, IN</div></div>
+  </div>
+  <div class="loader" id="rec-loader">Fetching weather & ranking places...<div class="loader-dots"><span></span><span></span><span></span></div></div>
+  <div class="weather-card" id="rec-weather-card"></div>
+  <div id="rec-places-section" style="display:none">
+    <div class="section-title" id="rec-section-title"></div>
+    <div class="places-grid" id="rec-places-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SEARCH PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-search">
+  <div class="page-header">
+    <div class="pill">Search Places</div>
+    <h1>Find a Place</h1>
+    <p>Search by name or category across all 4 cities.</p>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="e.g. temple, waterfall, museum, market..." onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button class="btn" onclick="doSearch()">Search</button>
+  </div>
+  <div class="search-hint">Try: <strong>temple</strong> · <strong>nature</strong> · <strong>market</strong> · <strong>museum</strong> · <strong>park</strong> · <strong>viewpoint</strong> · <strong>landmark</strong></div>
+  <div id="search-results"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     HISTORY PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-history">
+  <div class="page-header">
+    <div class="pill">History</div>
+    <h1>Your Activity</h1>
+    <p>Everything you've done this session.</p>
+  </div>
+  <div class="history-header">
+    <span id="hist-count" style="font-size:13px;color:var(--text-3)"></span>
+    <button class="btn-ghost" onclick="clearHistory()">Clear history</button>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA — mirrors DatabaseManager.java exactly
+// ══════════════════════════════════════════
+const CITIES = {
+  dehradun:  { name:"Dehradun",  icon:"🏙️", countryState:"India (Uttarakhand)", description:"Capital of Uttarakhand in the Doon Valley. Gateway to Mussoorie and Rishikesh.", lat:30.3165, lon:78.0322 },
+  mussoorie: { name:"Mussoorie", icon:"🏔️", countryState:"India (Uttarakhand)", description:"Queen of Hills at 2000m altitude. Famous for scenic views and colonial charm.", lat:30.4598, lon:78.0664 },
+  rishikesh: { name:"Rishikesh", icon:"🕉️", countryState:"India (Uttarakhand)", description:"Yoga Capital of the World. Sits on the banks of the holy Ganga river.", lat:30.0869, lon:78.2676 },
+  haridwar:  { name:"Haridwar",  icon:"🛕", countryState:"India (Uttarakhand)", description:"One of the seven holiest Hindu cities. Famous for Ganga Aarti at Har Ki Pauri.", lat:29.9457, lon:78.1642 },
+};
+
+const PLACES = [
+  {id:1,  city:"dehradun",  name:"Forest Research Institute", category:"Museum",    type:"INDOOR",  pop:90},
+  {id:2,  city:"dehradun",  name:"Robber's Cave",             category:"Nature",    type:"OUTDOOR", pop:85},
+  {id:3,  city:"dehradun",  name:"Paltan Bazaar",             category:"Market",    type:"INDOOR",  pop:70},
+  {id:4,  city:"dehradun",  name:"Tapkeshwar Temple",         category:"Temple",    type:"OUTDOOR", pop:78},
+  {id:5,  city:"dehradun",  name:"Sahastradhara",             category:"Nature",    type:"OUTDOOR", pop:80},
+  {id:6,  city:"dehradun",  name:"Malsi Deer Park",           category:"Park",      type:"OUTDOOR", pop:72},
+  {id:7,  city:"dehradun",  name:"Mindrolling Monastery",     category:"Temple",    type:"INDOOR",  pop:82},
+  {id:8,  city:"dehradun",  name:"Clock Tower",               category:"Landmark",  type:"OUTDOOR", pop:75},
+  {id:9,  city:"mussoorie", name:"Kempty Falls",              category:"Nature",    type:"OUTDOOR", pop:90},
+  {id:10, city:"mussoorie", name:"Mall Road",                 category:"Market",    type:"OUTDOOR", pop:88},
+  {id:11, city:"mussoorie", name:"Gun Hill",                  category:"Viewpoint", type:"OUTDOOR", pop:85},
+  {id:12, city:"mussoorie", name:"Lal Tibba",                 category:"Viewpoint", type:"OUTDOOR", pop:80},
+  {id:13, city:"mussoorie", name:"Library Bazaar",            category:"Market",    type:"INDOOR",  pop:75},
+  {id:14, city:"mussoorie", name:"Mussoorie Lake",            category:"Nature",    type:"OUTDOOR", pop:78},
+  {id:15, city:"mussoorie", name:"Jwala Devi Temple",         category:"Temple",    type:"INDOOR",  pop:72},
+  {id:16, city:"mussoorie", name:"Cloud's End",               category:"Nature",    type:"OUTDOOR", pop:70},
+  {id:17, city:"rishikesh", name:"Lakshman Jhula",            category:"Landmark",  type:"OUTDOOR", pop:92},
+  {id:18, city:"rishikesh", name:"Ram Jhula",                 category:"Landmark",  type:"OUTDOOR", pop:90},
+  {id:19, city:"rishikesh", name:"Beatles Ashram",            category:"Museum",    type:"INDOOR",  pop:85},
+  {id:20, city:"rishikesh", name:"Triveni Ghat",              category:"Temple",    type:"OUTDOOR", pop:88},
+  {id:21, city:"rishikesh", name:"Neelkanth Mahadev Temple",  category:"Temple",    type:"INDOOR",  pop:82},
+  {id:22, city:"rishikesh", name:"Rajaji National Park",      category:"Nature",    type:"OUTDOOR", pop:80},
+  {id:23, city:"rishikesh", name:"Parmarth Niketan Ashram",   category:"Temple",    type:"INDOOR",  pop:78},
+  {id:24, city:"rishikesh", name:"Ganga Beach",               category:"Nature",    type:"OUTDOOR", pop:85},
+  {id:25, city:"haridwar",  name:"Har Ki Pauri",              category:"Landmark",  type:"OUTDOOR", pop:95},
+  {id:26, city:"haridwar",  name:"Mansa Devi Temple",         category:"Temple",    type:"OUTDOOR", pop:90},
+  {id:27, city:"haridwar",  name:"Chandi Devi Temple",        category:"Temple",    type:"OUTDOOR", pop:88},
+  {id:28, city:"haridwar",  name:"Maya Devi Temple",          category:"Temple",    type:"INDOOR",  pop:85},
+  {id:29, city:"haridwar",  name:"Daksha Mahadev Temple",     category:"Temple",    type:"INDOOR",  pop:78},
+  {id:30, city:"haridwar",  name:"Rajaji National Park",      category:"Nature",    type:"OUTDOOR", pop:82},
+  {id:31, city:"haridwar",  name:"Sapt Rishi Ashram",         category:"Temple",    type:"INDOOR",  pop:75},
+  {id:32, city:"haridwar",  name:"Bara Bazaar",               category:"Market",    type:"INDOOR",  pop:80},
+];
+
+const CAT_ICONS = { Museum:"🏛️", Nature:"🌿", Market:"🛍️", Temple:"🛕", Park:"🌳", Viewpoint:"🔭", Landmark:"🏗️" };
+
+// ══════════════════════════════════════════
+// HISTORY (session memory)
+// ══════════════════════════════════════════
+let searchHistory = [];
+function logHistory(action, icon) {
+  searchHistory.push({ action, icon, time: new Date() });
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goPage(key) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + key).classList.add('active');
+  document.querySelector('[data-page="' + key + '"]')?.classList.add('active');
+  if (key === 'history') renderHistory();
+  window.scrollTo(0,0);
+}
+
+function selectCity(gridId, key) {
+  document.querySelectorAll('#' + gridId + ' .city-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('#' + gridId + ' [data-key="' + key + '"]')?.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// OPEN-METEO WEATHER — mirrors WeatherModule.java
+// ══════════════════════════════════════════
+const WMO_MAP = {
+  0:  ["Clear","clear sky"],
+  1:  ["Cloudy","mainly clear"], 2:["Cloudy","partly cloudy"], 3:["Cloudy","overcast"],
+  45: ["Cloudy","fog"], 48:["Cloudy","icy fog"],
+  51: ["Rain","light drizzle"], 53:["Rain","moderate drizzle"], 55:["Rain","dense drizzle"],
+  61: ["Rain","slight rain"], 63:["Rain","moderate rain"], 65:["Rain","heavy rain"],
+  71: ["Snow","slight snow"], 73:["Snow","moderate snow"], 75:["Snow","heavy snow"],
+  80: ["Rain","slight showers"], 81:["Rain","moderate showers"], 82:["Rain","violent showers"],
+  95: ["Storm","thunderstorm"], 96:["Storm","thunderstorm+hail"], 99:["Storm","heavy thunderstorm"],
+};
+function mapCode(code) {
+  return WMO_MAP[code] || ["Fair","stable conditions"];
+}
+function weatherIcon(cond) {
+  if (cond==="Storm") return "⛈️";
+  if (cond==="Rain")  return "🌧️";
+  if (cond==="Snow")  return "❄️";
+  if (cond==="Cloudy")return "⛅";
+  return "☀️";
+}
+
+// classifyWeather — mirrors RecommendationModule.classifyWeather()
+function classifyWeather(condition, temp, windSpeed) {
+  const c = condition.toLowerCase();
+  if (c.includes("storm")) return "STORM";
+  if (c.includes("rain"))  return "RAIN";
+  if (c.includes("snow"))  return "COLD";
+  if (c.includes("fog") || c.includes("cloudy")) return "CLOUDY";
+  if (windSpeed >= 25) return "WINDY";
+  if (temp >= 30)      return "HOT";
+  if (temp <= 16)      return "COLD";
+  if (c.includes("cloud")) return "CLOUDY";
+  return "CLEAR";
+}
+
+const TAG_LABELS = { CLEAR:"Clear", CLOUDY:"Cloudy", RAIN:"Rainy", STORM:"Stormy", HOT:"Hot", COLD:"Cold", WINDY:"Windy" };
+
+function getWeatherInsight(tag) {
+  const insights = {
+    HOT:   "It's pretty hot out there — you might want to stick to cool indoor spots or places with plenty of shade.",
+    COLD:  "It's quite chilly right now — a warm and cozy place would be a great choice.",
+    RAIN:  "Looks like it's raining — best to stay indoors and keep dry.",
+    STORM: "The weather is rough with storms — it's safer to stay inside for now.",
+    WINDY: "It's really windy today — not the best time for open or high places.",
+    CLOUDY:"The weather is calm and cloudy — perfect for a relaxed walk or light exploring.",
+    CLEAR: "The weather is just right — a great time to head out and explore the city!",
+  };
+  return insights[tag] || insights.CLEAR;
+}
+
+async function fetchWeather(cityKey) {
+  const c = CITIES[cityKey];
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&hourly=relative_humidity_2m&timezone=auto`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const cw = data.current_weather;
+  const [condition, description] = mapCode(cw.weathercode);
+  // extract current-hour humidity
+  let humidity = 0;
+  try {
+    const times = data.hourly.time;
+    const hums  = data.hourly.relative_humidity_2m;
+    const key   = new Date().toISOString().substring(0,13) + ":00";
+    const idx   = times.indexOf(key);
+    if (idx >= 0) humidity = hums[idx];
+  } catch(e){}
+  return { condition, description, temp: Math.round(cw.temperature), humidity, wind: Math.round(cw.windspeed) };
+}
+
+function weatherCardHTML(cityKey, w, tag) {
+  const c = CITIES[cityKey];
+  return `
+    <div class="wc-left">
+      <div class="wc-icon">${weatherIcon(w.condition)}</div>
+      <div>
+        <div class="wc-city">${c.name}</div>
+        <div class="wc-desc">${w.description}</div>
+        <span class="wc-badge badge-${tag}">${TAG_LABELS[tag]}</span>
+      </div>
+    </div>
+    <div class="wc-temp">${w.temp}°C</div>
+    <div class="wc-stats">
+      <div class="wc-stat"><div class="val">${w.humidity}%</div><div class="lbl">Humidity</div></div>
+      <div class="wc-stat"><div class="val">${w.wind} km/h</div><div class="lbl">Wind</div></div>
+    </div>
+    <div class="wc-insight">💡 ${getWeatherInsight(tag)}</div>
+  `;
+}
+
+// ══════════════════════════════════════════
+// SCORING ENGINE — mirrors RecommendationModule.java
+// ══════════════════════════════════════════
+function weatherScore(p, tag) {
+  switch(tag) {
+    case "RAIN": case "STORM": return p.type==="INDOOR" ? 10 : -5;
+    case "HOT":   return p.type==="INDOOR" ? 8 : 2;
+    case "COLD":  return p.type==="INDOOR" ? 7 : 3;
+    case "WINDY": return p.type==="INDOOR" ? 6 : 1;
+    case "CLEAR": case "CLOUDY": return p.type==="INDOOR" ? 3 : 10;
+    default: return 0;
+  }
+}
+function categoryScore(p, tag) {
+  const cat = p.category.toLowerCase();
+  let s = 0;
+  if (tag==="HOT")   { if (cat.includes("nature")) s+=4; if (cat.includes("water")) s+=5; }
+  if (tag==="COLD")  { if (cat.includes("cafe")||cat.includes("indoor")) s+=4; }
+  if (tag==="RAIN"||tag==="STORM") { if (cat.includes("museum")||cat.includes("mall")) s+=5; }
+  if (tag==="CLEAR") { if (cat.includes("adventure")||cat.includes("nature")) s+=5; }
+  return s;
+}
+function popularityScore(p) { return Math.max(0, Math.min(10, Math.floor(p.pop/10))); }
+function totalScore(p, tag) { return weatherScore(p,tag) + categoryScore(p,tag) + popularityScore(p); }
+
+function getReason(p, tag) {
+  const cat = p.category.toLowerCase();
+  switch(tag) {
+    case "RAIN": case "STORM":
+      return p.type==="INDOOR" ? "Perfect indoor place to stay safe from this bad weather." : "Outdoor spot — consider visiting later.";
+    case "HOT":
+      return cat.includes("nature") ? "Natural surroundings help keep things cool."
+           : p.type==="INDOOR" ? "Great place to escape the heat."
+           : "Carry water and sun protection.";
+    case "COLD":
+      return p.type==="INDOOR" ? "Warm and cozy indoor experience." : "Cold weather — dress warmly.";
+    case "CLEAR":
+      return p.type==="INDOOR" ? "Good option, but outdoors are ideal now since it is clear." : "Perfect weather to explore outdoors!";
+    default:
+      return "Good place to visit right now since the weather is great.";
+  }
+}
+
+function placeCardHTML(p, tag, rank) {
+  const reason = getReason(p, tag);
+  const tagClass = p.type==="INDOOR" ? "tag-indoor" : "tag-outdoor";
+  return `
+    <div class="place-card">
+      <div class="rank">#${rank} Recommended</div>
+      <div class="p-name">${CAT_ICONS[p.category]||"📍"} ${p.name}</div>
+      <div class="p-tags">
+        <span class="tag ${tagClass}">${p.type}</span>
+        <span class="tag tag-cat">${p.category}</span>
+      </div>
+      <div class="p-reason">${reason}</div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════
+// WEATHER PAGE
+// ══════════════════════════════════════════
+async function weatherPage(btn) {
+  const key = btn.dataset.key;
+  selectCity('wt-city-grid', key);
+  const loader = document.getElementById('wt-loader');
+  const card   = document.getElementById('wt-card');
+  card.classList.remove('show');
+  loader.classList.add('show');
+  try {
+    const w = await fetchWeather(key);
+    const tag = classifyWeather(w.condition, w.temp, w.wind);
+    card.innerHTML = weatherCardHTML(key, w, tag);
+    loader.classList.remove('show');
+    card.classList.add('show');
+    logHistory("Checked weather: " + CITIES[key].name, "🌤️");
+  } catch(e) {
+    loader.textContent = "Could not fetch weather. Check your connection.";
+  }
+}
+
+// ══════════════════════════════════════════
+// CITY INFO PAGE
+// ══════════════════════════════════════════
+function cityInfoPage(btn) {
+  const key = btn.dataset.key;
+  selectCity('ci-city-grid', key);
+  const c = CITIES[key];
+  const places = PLACES.filter(p => p.city === key).sort((a,b) => b.pop - a.pop);
+  const card = document.getElementById('ci-card');
+  card.innerHTML = `
+    <div class="cic-header">
+      <div class="cic-icon-wrap">${c.icon}</div>
+      <div>
+        <div class="cic-name">${c.name}</div>
+        <div class="cic-location">📍 ${c.countryState}</div>
+      </div>
+    </div>
+    <div class="cic-about">${c.description}</div>
+    <div class="cic-places-title">All places (${places.length})</div>
+    <div class="cic-place-list">
+      ${places.map(p => `
+        <div class="cic-place-row">
+          <span>${CAT_ICONS[p.category]||"📍"}</span>
+          <span class="pr-name">${p.name}</span>
+          <span class="tag tag-cat">${p.category}</span>
+          <span class="tag ${p.type==="INDOOR"?"tag-indoor":"tag-outdoor"}">${p.type}</span>
+          <span class="pr-score">★ ${p.pop}</span>
+        </div>`).join('')}
+    </div>
+  `;
+  card.classList.add('show');
+  logHistory("Viewed city info: " + c.name, "🏙️");
+}
+
+// ══════════════════════════════════════════
+// RECOMMENDATIONS PAGE
+// ══════════════════════════════════════════
+async function recommendPage(btn) {
+  const key = btn.dataset.key;
+  selectCity('rec-city-grid', key);
+  const loader   = document.getElementById('rec-loader');
+  const wCard    = document.getElementById('rec-weather-card');
+  const section  = document.getElementById('rec-places-section');
+  const title    = document.getElementById('rec-section-title');
+  const grid     = document.getElementById('rec-places-grid');
+  wCard.classList.remove('show');
+  section.style.display = 'none';
+  loader.classList.add('show');
+  try {
+    const w   = await fetchWeather(key);
+    const tag = classifyWeather(w.condition, w.temp, w.wind);
+    wCard.innerHTML = weatherCardHTML(key, w, tag);
+    loader.classList.remove('show');
+    wCard.classList.add('show');
+
+    const cityPlaces = PLACES.filter(p => p.city === key);
+    const ranked = [...cityPlaces].sort((a,b) => totalScore(b,tag) - totalScore(a,tag)).slice(0,5);
+    title.textContent = `Top 5 recommended places · ${TAG_LABELS[tag]} conditions`;
+    grid.innerHTML = ranked.map((p,i) => placeCardHTML(p, tag, i+1)).join('');
+    section.style.display = 'block';
+    logHistory("Got recommendations: " + CITIES[key].name, "✨");
+  } catch(e) {
+    loader.classList.remove('show');
+    loader.textContent = "Could not fetch weather. Please try again.";
+  }
+}
+
+// ══════════════════════════════════════════
+// SEARCH — mirrors SearchModule.java
+// ══════════════════════════════════════════
+function doSearch() {
+  const kw = document.getElementById('search-input').value.trim().toLowerCase();
+  const container = document.getElementById('search-results');
+  if (!kw) { container.innerHTML = '<div class="empty-state show">Please enter a keyword.</div>'; return; }
+  const results = PLACES.filter(p =>
+    p.name.toLowerCase().includes(kw) || p.category.toLowerCase().includes(kw)
+  );
+  if (results.length === 0) {
+    container.innerHTML = `<div class="empty-state show">No results for "<strong>${kw}</strong>". Try: temple, nature, market, museum, park, viewpoint, landmark.</div>`;
+  } else {
+    container.innerHTML = results.map((p,i) => `
+      <div class="search-result-row">
+        <span class="sr-num">${i+1}</span>
+        <span>${CAT_ICONS[p.category]||"📍"}</span>
+        <span class="sr-name">${p.name}</span>
+        <span class="tag tag-cat">${p.category}</span>
+        <span class="tag ${p.type==="INDOOR"?"tag-indoor":"tag-outdoor"}">${p.type}</span>
+        <span class="sr-city">${CITIES[p.city].name}</span>
+        <span class="tag" style="background:var(--green-100);color:var(--green-700)">★ ${p.pop}</span>
+      </div>
+    `).join('');
+  }
+  logHistory('Searched: "' + kw + '" — ' + results.length + ' result(s)', "🔍");
+}
+
+// ══════════════════════════════════════════
+// HISTORY — mirrors DataManager.java
+// ══════════════════════════════════════════
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const count = document.getElementById('hist-count');
+  if (searchHistory.length === 0) {
+    list.innerHTML = '<div class="history-empty">No activity yet in this session. Start exploring!</div>';
+    count.textContent = '';
+    return;
+  }
+  count.textContent = searchHistory.length + ' item' + (searchHistory.length!==1?'s':'') + ' this session';
+  list.innerHTML = [...searchHistory].reverse().map(h => `
+    <div class="history-item">
+      <div class="hi-icon">${h.icon}</div>
+      <div>
+        <div class="hi-action">${h.action}</div>
+        <div class="hi-time">${h.time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · ${h.time.toLocaleDateString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function clearHistory() {
+  searchHistory = [];
+  renderHistory();
+}
+</script>
+</body>
+</html>
