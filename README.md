@@ -55,7 +55,7 @@ cd WeatherWise_Explorer
 
 # 2. Add your API key
 # Open src/main/resources/application.properties and set:
-# weather.api.key=YOUR_API_KEY_HERE
+# weather.api.key=take from openmeteo
 
 # 3. Build the project
 mvn clean install
