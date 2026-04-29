@@ -27,8 +27,8 @@ public class CityInfoModule
         }
         System.out.println("\n    City: " + info.getName());
         System.out.println("  ─────────────────────────────────────────");
-        System.out.println("    Location : " + info.getCountryState());
-        System.out.println("    About    : " + info.getDescription());
+        System.out.println("    Location : " + info.getArea());
+        System.out.println("    About    : " + info.getNote());
         System.out.println("  ─────────────────────────────────────────");
     }
 }
