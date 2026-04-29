@@ -1,35 +1,47 @@
 package com.example;
 
-public class CityInfo 
-{
+// used in weather + travel module to store basic city details
+public class CityInfo {
 
-    private final String cityKey;
-    private final String name;
-    private final String countryState;
-    private final String description;
+    // short id (like used in menu or file)
+    private String code;
 
-    public CityInfo(String cityKey, String name, String countryState, String description) 
-    {
-        this.cityKey      = cityKey;
-        this.name         = name;
-        this.countryState = countryState;
-        this.description  = description;
+    // actual city name
+    private String name;
+
+    // country or state (kept together for simplicity)
+    private String area;
+
+    // small line about city (just for display)
+    private String note;
+
+    public CityInfo(String code, String name, String area, String note) {
+        this.code = code;
+        this.name = name;
+        this.area = area;
+        this.note = note;
     }
 
-    public String getCityKey()     
-    {
-    	return cityKey;     
+    // getters (no setters for now, not needed in my project)
+
+    public String getCode() {
+        return code;
     }
-    public String getName()         
-    {
-    	return name;        
+
+    public String getName() {
+        return name;
     }
-    public String getCountryState() 
-    { 
-    	return countryState; 
+
+    public String getArea() {
+        return area;
     }
-    public String getDescription() 
-    {
-    	return description; 
+
+    public String getNote() {
+        return note;
+    }
+
+    // used when printing city list
+    public String toString() {
+        return name + " - " + area + " | " + note;
     }
 }
