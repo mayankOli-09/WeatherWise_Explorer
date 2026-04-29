@@ -1,9 +1,5 @@
 package com.example;
-
-
-
 import java.util.List;
-
 public class SearchModule 
 {
 
@@ -32,8 +28,7 @@ public class SearchModule
             int i = 1;
             for (PlaceInfo p : results) 
             {
-                System.out.printf("  %2d. %-35s [%s] [%s] — %s%n",
-                    i++, p.getName(), p.getCategory(), p.getPlaceType(), p.getCityKey());
+                System.out.printf("  %2d. %-35s [%s] [%s] — %s%n",i++, p.getName(), p.getCategory(), p.getPlaceType(), p.getCityKey());
             }
         }
         System.out.println("  ─────────────────────────────────────────");
