@@ -1,9 +1,5 @@
 package com.example;
 
-import org.springframework.stereotype.Service;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -75,6 +71,11 @@ public class WeatherModule
         }
     }
 
+    private JSONObject getJson(String apiUrl) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getJson'");
+    }
+
     // Mirrors RecommendationModule.classifyWeather()
     public String classifyWeather(String condition, double temp, double windSpeed)
     {
@@ -118,19 +119,8 @@ public class WeatherModule
         return 0;
     }
 
-    private JSONObject getJson(String urlStr) throws Exception
-    {
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
-        if (conn.getResponseCode() != 200) return null;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream())))
-        {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) sb.append(line);
-            return new JSONObject(sb.toString());
-        }
+    public void displayWeather(String city) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'displayWeather'");
     }
 }
