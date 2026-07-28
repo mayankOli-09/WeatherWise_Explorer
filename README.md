@@ -130,18 +130,6 @@ User gets a curated outing plan — instantly!
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Here's how:
-
-```bash
-# Fork the repo, then:
-git checkout -b feature/your-feature-name
-git commit -m "Add: your feature description"
-git push origin feature/your-feature-name
-# Open a Pull Request 🎉
-```
-
 
 <div align="center">
 
